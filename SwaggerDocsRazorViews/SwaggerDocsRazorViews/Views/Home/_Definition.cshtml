@@ -1,0 +1,40 @@
+﻿@using Swashbuckle.Swagger
+@model string
+@{ 
+    var swaggerDocument = (SwaggerDocument)ViewBag.SwaggerDocument;
+}
+
+<div class="col-md-6">
+    <p>@Model</p>
+    <p>@swaggerDocument.definitions[Model].description</p>
+    <table class="table table-striped">
+        @foreach (var p in swaggerDocument.definitions[Model].properties)
+        {
+            <tr>
+                <td>@p.Key</td>
+                <td>@Html.Raw(@p.Value != null ? @p.Value.type + " " + @p.Value.format : string.Empty)</td>
+                <td>
+                    @if (swaggerDocument.definitions[Model].required != null)
+                {
+                    foreach (var i in swaggerDocument.definitions[Model].required)
+                    {
+                        if (i == p.Key)
+                        {
+                                <span class="badge b-req">required</span>
+                            }
+                        }
+                    }
+                    @Html.Raw(@p.Value != null ? @p.Value.description : string.Empty)
+                </td>
+                <td></td>
+            </tr>
+        }
+    </table>
+</div>
+<div class="col-md-6">
+    @if (swaggerDocument.definitions[Model].example != null)
+    {
+        <strong>Beispiel body format</strong>
+        @Html.Raw(swaggerDocument.definitions[Model].example.ToString().Replace(Environment.NewLine, "<br/>").Replace(" ", "&nbsp;"))
+    }
+</div>

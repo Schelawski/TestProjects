@@ -1,0 +1,33 @@
+﻿@model IDictionary<string, Swashbuckle.Swagger.Response>
+
+@{    
+
+}
+
+<strong>Response</strong>
+@if (parameters != null)
+{
+    <table border="1">
+        <tr>
+            <th>Name</th>
+            <th>Type</th>
+            <th>Reqiured</th>
+            <th>In</th>
+            <th>Description</th>
+        </tr>
+        @foreach (var parameter in parameters)
+        {           
+            <tr>
+                <td>@parameter.name</td>
+                <td>@parameter.type</td>
+                <td>
+                    <span class="badge b-req">
+                     @Html.Raw(parameter.required.GetValueOrDefault() ? "required" : "optional")
+                    </span>
+                </td>
+                <td>@Html.Raw(parameter.@in)</td>
+                <td>@parameter.description</td>
+            </tr>
+        }
+    </table>
+}

@@ -1,0 +1,109 @@
+﻿@model IDictionary<string, Swashbuckle.Swagger.PathItem>
+@{
+    
+    List<string> tags = new List<string>();
+
+    foreach (var item in Model)
+    {
+        if (item.Value.delete != null)
+        {
+            tags.AddRange(item.Value.delete.tags);
+        }
+
+        if (item.Value.get != null)
+        {
+            tags.AddRange(item.Value.get.tags);
+        }
+
+        if (item.Value.post != null)
+        {
+            tags.AddRange(item.Value.post.tags);
+        }
+
+        if (item.Value.put != null)
+        {
+            tags.AddRange(item.Value.put.tags);
+        }
+    }
+}
+
+
+<li class="@Html.Raw(ViewBag.ActiveSidebarItem == "overview" ? "active" : "")">
+    <a href="javascript:;" data-toggle="collapse" data-target="#overview">
+        <i class="fa fa-fw fa-dashboard"></i> Overview 
+        <i class="fa fa-fw fa-caret-down"></i>
+    </a>
+    <ul id="overview" class="collapse">       
+        <li class="active"><a href="#">Einführung<span class="sr-only">(current)</span></a></li>
+    </ul>
+</li>
+
+<li>
+    <a href="javascript:;" data-toggle="collapse" data-target="#integration">
+        <i class="fa fa-fw fa-file"></i> Integration
+        <i class="fa fa-fw fa-caret-down"></i>
+    </a>
+    <ul id="integration" class="collapse">      
+        <li><a href="">Nav item</a></li>
+    </ul>
+</li>
+
+<li>
+    <a href="javascript:;" data-toggle="collapse" data-target="#operations">
+        <i class="fa fa-fw fa-file"></i> User guide
+        <i class="fa fa-fw fa-caret-down"></i>
+    </a>
+    <ul id="operations" class="collapse">        
+        <li><a href="">Kunden</a></li>
+        <li><a href="">Nicht-Kunden</a></li>
+        <li><a href="">Zählerstand speichern</a></li>
+    </ul>
+</li>
+
+<li class="@Html.Raw(ViewBag.ActiveSidebarItem == "reference" ? "active" : "")">
+    <a href="javascript:;" data-toggle="collapse" data-target="#reference">
+        <i class="fa fa-fw fa-file"></i> API reference
+        <i class="fa fa-fw fa-caret-down"></i>
+    </a>
+    <ul id="reference" class="@Html.Raw(ViewBag.ActiveSidebarItem == "reference" ? "in" : "collapse")">        
+        <li><a href="">Overview</a></li>
+        <li>
+            @foreach (var controllerName in tags.Distinct().ToList())
+            {
+                <a>@controllerName</a>
+                <ul>
+                    @foreach (var item in Model.Keys.Where(x => x.ToLower().Contains("/" + controllerName.ToLower())))
+                    {                        
+                        Swashbuckle.Swagger.Operation get = Model[item].get;
+                        Swashbuckle.Swagger.Operation post = Model[item].post;
+                        Swashbuckle.Swagger.Operation put = Model[item].put;
+                        Swashbuckle.Swagger.Operation delete = Model[item].delete;
+
+                        if (get != null)
+                        {
+                            <li><a href="@Url.Action("Details", "Home", new { operationId = @Html.Raw(get.operationId) })">@Html.Raw(get.summary != null ? get.summary : get.operationId)</a></li>
+                        }
+
+                        if (post != null)
+                        {
+                            <li><a href="@Url.Action("Details", "Home", new { operationId = @Html.Raw(post.operationId) })">@Html.Raw(post.summary != null ? post.summary : post.operationId)</a></li>
+                        }
+
+                        if (put != null)
+                        {
+                            <li><a href="@Url.Action("Details", "Home", new { operationId = @Html.Raw(put.operationId) })">@Html.Raw(put.summary != null ? put.summary : put.operationId)</a></li>
+                        }
+
+                        if (delete != null)
+                        {
+                            <li><a href="@Url.Action("Details", "Home", new { operationId = @Html.Raw(delete.operationId) })">@Html.Raw(delete.summary != null ? delete.summary : delete.operationId)</a></li>
+                        }
+                    }
+                </ul>
+            }
+        </li>
+    </ul>
+</li>
+
+ 
+            

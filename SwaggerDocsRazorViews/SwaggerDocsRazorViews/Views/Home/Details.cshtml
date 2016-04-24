@@ -1,0 +1,45 @@
+﻿@using Swashbuckle.Swagger
+
+@{    
+    ViewBag.ActiveSidebarItem = "reference";
+    Swashbuckle.Swagger.Operation operation = null;
+    string httpMethod = string.Empty;
+
+    SwaggerDocument doc = ViewBag.SwaggerDocument;
+
+    foreach (var pathItem in doc.paths.Values)
+    {
+        if (pathItem.get != null && pathItem.get.operationId == ViewBag.OperationId)
+        {
+            operation = pathItem.get;
+            httpMethod = "GET";
+        }
+
+        if (pathItem.post != null && pathItem.post.operationId == ViewBag.OperationId)
+        {
+            operation = pathItem.post;
+            httpMethod = "POST";
+        }
+
+        if (pathItem.put != null && pathItem.put.operationId == ViewBag.OperationId)
+        {
+            operation = pathItem.put;
+            httpMethod = "PUT";
+        }
+
+        if (pathItem.delete != null && pathItem.delete.operationId == ViewBag.OperationId)
+        {
+            operation = pathItem.delete;
+            httpMethod = "DELETE";
+        }
+    }
+}
+<br/>
+<div class="" style="border: 1px dotted #DDD; padding: 10px">
+    <h4>@operation.summary</h4>
+    <p>@operation.description</p>
+    <p>@httpMethod @ViewBag.Path</p>
+    
+</div>
+@Html.Partial("_Operation", new System.Collections.DictionaryEntry() { Key = httpMethod, Value = operation })  
+

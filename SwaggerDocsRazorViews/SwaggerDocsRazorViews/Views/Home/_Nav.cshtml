@@ -1,0 +1,30 @@
+﻿@model IDictionary<string, Swashbuckle.Swagger.PathItem>
+
+@foreach(var item in Model.Keys)
+{
+    Swashbuckle.Swagger.Operation get = Model[item].get;
+    Swashbuckle.Swagger.Operation post = Model[item].post;
+    Swashbuckle.Swagger.Operation put = Model[item].put;
+    Swashbuckle.Swagger.Operation delete = Model[item].delete;
+
+    if (get != null)
+    {
+        @Html.Raw("get " + get.tags.First())
+    }
+    
+    if (post != null)
+    {
+        @Html.Raw("post " + post.tags.First())
+    }
+
+    if (put != null)
+    {
+        @Html.Raw("put " + put.tags.First())
+    }
+
+    if (delete != null)
+    {
+        @Html.Raw("delete " + delete.tags.First())
+    }
+    <br />
+}

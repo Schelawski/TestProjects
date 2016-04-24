@@ -1,0 +1,134 @@
+﻿@using Swashbuckle.Swagger
+@model System.Collections.DictionaryEntry
+
+@{
+    List<Swashbuckle.Swagger.Parameter> parameters = new List<Swashbuckle.Swagger.Parameter>();
+    IDictionary<string, Swashbuckle.Swagger.Response> responses = null;
+    Operation operation = (Operation)Model.Value;
+
+    if (operation != null)
+    {
+        parameters.AddRange(operation.parameters);
+        responses = operation.responses;
+    }
+
+    List<string> parameterTypes = new List<string>() { "header", "body", "path", "query" };
+
+    var swaggerDocument = (SwaggerDocument)ViewBag.SwaggerDocument;
+   
+    var responseDefs = new List<string>();
+    var bodyDefs = new List<string>();
+        
+    if (operation.responses != null && operation.responses.Any())
+    {
+        foreach (var response in operation.responses.Values)
+        {
+            if (response.schema != null && !string.IsNullOrEmpty(response.schema.@ref))
+            {
+                responseDefs.Add(response.schema.@ref.Replace("#/definitions/", string.Empty));
+            }
+
+            if (response.schema != null && response.schema.type == "array")
+            {
+                if (response.schema.items != null && response.schema.items.@ref != null)
+                {
+                    responseDefs.Add(response.schema.items.@ref.Replace("#/definitions/", string.Empty));
+                }
+            }
+        }
+
+        foreach (var p in operation.parameters.Where(x => x.@in == "body"))
+        {
+            if (p.schema != null && !string.IsNullOrEmpty(p.schema.@ref))
+            {
+                bodyDefs.Add(p.schema.@ref.Replace("#/definitions/", string.Empty));
+            }
+        }
+    } 
+}
+ 
+@if (parameters != null)
+{    
+    foreach (var type in parameterTypes)
+    {
+        if (parameters.Where(x => x.@in == type).Any())
+        {
+            <div class="row">
+                <div class="col-md-6">
+                    <strong>Request @type</strong>
+                    <table class="table table-striped">
+                        <tr>
+                            <th>Name</th>
+                            <th>Type</th>
+                            <th>Description</th>
+                        </tr>
+                        @foreach (var parameter in parameters.Where(x => x.@in == type))
+                        {
+                            <tr>
+                                <td>@parameter.name</td>
+                                <td>
+                                    <i>@parameter.type</i>
+                                    @Html.Raw(parameter.schema != null ? parameter.schema.@ref.Replace("#/definitions/", string.Empty) : "")
+                                </td>
+                                <td>
+                                    <span class="badge b-req">@Html.Raw(parameter.required.GetValueOrDefault() ? "required" : "optional")</span>
+                                    <p>@Html.Raw(@parameter.description)</p>
+                                </td>
+                            </tr>
+                        }
+                    </table>
+                </div>
+            </div>
+
+            if (type == "body" && bodyDefs.Any())
+            {
+                <div class="row">                    
+                @foreach (var item in bodyDefs.Distinct().ToList())
+                {
+                    @Html.Partial("_Definition", item)
+                }                   
+                </div>                
+            }
+        }
+    }       
+}
+
+@if (responses != null)
+{
+        <br />  
+        <div class="row">
+            <div class="col-md-6"> 
+                <strong>Response</strong>               
+                @foreach (var item in responseDefs.Distinct().ToList())
+                {
+                    @Html.Partial("_Definition", item)
+                }
+            </div>
+            <div class="col-md-6" style="background-color:#fcfcfc">
+                
+                <table class="table">
+                @foreach (var response in responses)
+                {
+                        <tr>
+                            <td>HTTP/1.1</td>
+                            <td>@response.Key</td>
+                            <td>@Html.Raw(response.Value.description)</td>
+                            <td>
+
+                                @Html.Raw(@response.Value.schema != null && @response.Value.schema.@ref != null ? @response.Value.schema.@ref.Replace("#/definitions/", string.Empty) : "")
+                                @Html.Raw(@response.Value.schema != null ? @response.Value.schema.format : "")
+                                @if (@response.Value.schema != null && @response.Value.schema.type == "array")
+                                {
+                                    @Html.Raw("array of")
+                                    @Html.Raw("<br/>")
+                                    @Html.Raw(@response.Value.schema.items.@ref.Replace("#/definitions/", string.Empty))
+                                }
+                            </td>
+                        </tr>
+                    }
+                </table>
+                <br />
+                Content-Type: application/json
+            </div>
+        </div>
+}
