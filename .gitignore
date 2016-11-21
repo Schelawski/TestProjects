@@ -1,2 +1,6 @@
 /MsSqlForXmlTests.WebApi/packages
 /SwaggerDocsRazorViews/packages
+/XamarinTests/packages
+*\bin
+*\obj
+*.suo
